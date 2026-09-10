@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bantay Dangcagan Weather Warning System</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: #f4f7fb;
+    color: #1a2332;
+    line-height: 1.6;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(30, 64, 175, 0.2);
+  }
+
+  header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+  header p { opacity: 0.9; font-size: 1rem; }
+
+  .tags {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .tags span {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+  }
+
+  /* INTRO */
+  .intro {
+    background: white;
+    padding: 24px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .intro h2 { font-size: 1.2rem; margin-bottom: 12px; color: #1e40af; }
+  .intro p { margin-bottom: 10px; color: #475569; }
+
+  .main {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+
+  .sidebar {
+    flex: 0 0 200px;
+    background: white;
+    padding: 20px 16px;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 20px;
+  }
+
+  .sidebar h3 {
+    font-size: 0.9rem;
+    color: #1e40af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .sidebar button {
+    display: block;
+    width: 100%;
+    background: #f1f5f9;
+    color: #1e40af;
+    border: 1px solid #e2e8f0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+    text-align: left;
+    margin-bottom: 8px;
+  }
+
+  .sidebar button:hover {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    transform: translateX(2px);
+  }
+
+  .sidebar .legend-title {
+    font-size: 0.9rem;
+    color: #1e40af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 20px 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+
+  .legend-item .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .chart-box {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    min-width: 0;
+  }
+
+  .chart-box h2 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+    color: #1e40af;
+  }
+
+  #flowchart {
+    text-align: center;
+    min-height: 200px;
+  }
+
+  #flowchart svg {
+    max-width: 100%;
+    height: auto;
+    transition: transform 0.2s;
+  }
+
+  .caption {
+    background: white;
+    padding: 24px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    border-left: 5px solid #3b82f6;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .caption p { margin-bottom: 12px; color: #475569; }
+  .caption strong { color: #1a2332; }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    color: #94a3b8;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 768px) {
+    .main { flex-direction: column; }
+    .sidebar { flex: 1 1 auto; width: 100%; position: static; }
+    .sidebar button { display: inline-block; width: auto; margin-right: 6px; margin-bottom: 6px; }
+    header h1 { font-size: 1.4rem; }
+    body { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>⛰️ Bantay Dangcagan</h1>
+    <p>Community Weather Warning System</p>
+    <div class="tags">
+      <span>📍 Dangcagan, Bukidnon</span>
+      <span>☀️ Solar Powered</span>
+      <span>📡 Works Offline</span>
+      <span>🕐 24/7</span>
+    </div>
+  </header>
+
+  <div class="intro">
+    <h2>What is this?</h2>
+    <p>
+      A simple DIY system that watches the weather and warns our community
+      <strong>before</strong> a storm, heavy rain, or strong wind hits.
+    </p>
+    <p>
+      It sends alerts through <strong>SMS, Facebook, sirens, and LoRa</strong>
+      even without internet. Powered by the sun, so it keeps working during brownouts.
+    </p>
+  </div>
+
+  <div class="main">
+
+    <aside class="sidebar">
+      <h3>Controls</h3>
+      <button onclick="zoomIn()">➕ Zoom In</button>
+      <button onclick="zoomOut()">➖ Zoom Out</button>
+      <button onclick="resetView()">🎯 Reset</button>
+      <button onclick="downloadSVG()">⬇️ Download SVG</button>
+      <button onclick="downloadPNG()">🖼️ Download PNG</button>
+
+      <div class="legend-title">Legend</div>
+      <div class="legend-item"><span class="dot" style="background:#1e40af;"></span> Start</div>
+      <div class="legend-item"><span class="dot" style="background:#3b82f6;"></span> Process</div>
+      <div class="legend-item"><span class="dot" style="background:#60a5fa;"></span> Decision</div>
+      <div class="legend-item"><span class="dot" style="background:#ef4444;"></span> Alert</div>
+      <div class="legend-item"><span class="dot" style="background:#22c55e;"></span> Power</div>
+      <div class="legend-item"><span class="dot" style="background:#8b5cf6;"></span> Sleep</div>
+      <div class="legend-item"><span class="dot" style="background:#06b6d4;"></span> Cloud</div>
+    </aside>
+
+    <div class="chart-box">
+      <h2>How it works</h2>
+      <div id="flowchart">Loading diagram...</div>
+    </div>
+
+  </div>
+
+  <div class="caption">
+    <p>🤔 <strong>Naisip ko lang to bigla hahahaha.</strong></p>
+    <p>
+      I want to build a <strong>DIY Weather Warning System</strong> para sa atong lugar
+      sa <strong>Dangcagan, Bukidnon</strong> 🏔️
+    </p>
+    <p>
+      Solar-powered, 24/7, maka-alert via <strong>SMS + Facebook + Siren + LoRa</strong>
+      <strong>bisan walay internet</strong>.
+    </p>
+    <p>
+      Dili pa ko sure kung kaya ba nako... pero kung kompleto lang ang knowledge ug
+      naay motabang, <strong>kaya pa siguro</strong>. 💪
+    </p>
+    <p><strong>Kinsay interesado? Comment or DM!</strong></p>
+  </div>
+
+  <footer>
+    Made with ❤️ for Dangcagan · ESP32 + LoRa + Solar
+  </footer>
+
+</div>
+
+<script>
+const code = `flowchart TD
+    A["🔴 START"] --> B["⚡ INITIALIZE SYSTEM"]
+    B --> C["🔋 CHECK POWER"]
+    C --> D{"⚡ POWER OK?"}
+    D -->|NO| E["📱 SEND LOW POWER SMS"]
+    E --> F["💤 DEEP SLEEP (1 HOUR)"]
+    F --> C
+    D -->|YES| G["📡 READ SENSORS"]
+    G --> H["💾 LOG TO SD CARD"]
+    H --> I["📻 SEND VIA LoRa"]
+    I --> J{"📻 HUB RECEIVED?"}
+    J -->|NO| K["🔄 RETRY (3X)"]
+    K --> L{"✅ SUCCESS?"}
+    L -->|NO| M["💾 STORE LOCALLY"]
+    M --> N["💤 SLEEP"]
+    L -->|YES| O["🧠 PROCESS DATA"]
+    J -->|YES| O
+    O --> P{"🌧️ RAIN > 50mm/hr?"}
+    P -->|YES| Q["🚨 HEAVY RAIN ALERT"]
+    P -->|NO| R{"💨 WIND > 60km/h?"}
+    R -->|YES| S["🚨 STORM ALERT"]
+    R -->|NO| T{"📉 PRESSURE DROPPING?"}
+    T -->|YES| U["🚨 STORM APPROACHING"]
+    T -->|NO| V{"🌡️ TEMP > 40°C?"}
+    V -->|YES| W["🌡️ HEATWAVE ALERT"]
+    V -->|NO| X["☀️ NO ALERT - GOOD"]
+    Q --> Y["📢 ACTIVATE ALL CHANNELS"]
+    S --> Y
+    U --> Y
+    W --> Z["📱 SEND ADVISORY"]
+    X --> AA["🌅 SEND GOOD MORNING"]
+    Y --> AB["🔔 SIREN"]
+    Y --> AC["📱 SMS"]
+    Y --> AD["📘 FACEBOOK"]
+    Y --> AE["💬 WHATSAPP"]
+    Z --> AD
+    Z --> AE
+    AA --> AD
+    AA --> AE
+    AB --> AF["💾 LOG ACTIONS"]
+    AC --> AF
+    AD --> AF
+    AE --> AF
+    AF --> AG{"🌐 Wi-Fi AVAILABLE?"}
+    AG -->|YES| AH["☁️ SYNC TO CLOUD"]
+    AG -->|NO| AI["💾 STORE FOR LATER"]
+    AH --> AJ["💤 DEEP SLEEP"]
+    AI --> AJ
+    AJ --> AK["⏰ WAIT 5-15 MIN"]
+    AK --> B
+
+    classDef start fill:#1e40af,color:#fff,stroke:#1e40af
+    classDef process fill:#3b82f6,color:#fff,stroke:#3b82f6
+    classDef decision fill:#60a5fa,color:#fff,stroke:#60a5fa
+    classDef alert fill:#ef4444,color:#fff,stroke:#ef4444
+    classDef power fill:#22c55e,color:#fff,stroke:#22c55e
+    classDef sleep fill:#8b5cf6,color:#fff,stroke:#8b5cf6
+    classDef cloud fill:#06b6d4,color:#fff,stroke:#06b6d4
+
+    class A start
+    class B,G,H,I,K,L,M,O,AA,AB,AC,AD,AE,AF,AH,AI,AK process
+    class D,J,P,R,T,V decision
+    class Q,S,U alert
+    class E,Y,Z alert
+    class C,F,N,AJ power
+    class AG,AH,AI cloud`;
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  themeVariables: {
+    fontFamily: '-apple-system, Segoe UI, Roboto, sans-serif',
+    fontSize: '14px',
+    lineColor: '#94a3b8'
+  },
+  flowchart: { curve: 'basis', padding: 16 }
+});
+
+let svgEl;
+let scale = 1;
+
+async function draw() {
+  const { svg } = await mermaid.render('chart', code);
+  document.getElementById('flowchart').innerHTML = svg;
+  svgEl = document.querySelector('#flowchart svg');
+  svgEl.removeAttribute('height');
+  svgEl.style.maxWidth = '100%';
+}
+
+function zoomIn() {
+  if (!svgEl) return;
+  scale = Math.min(scale + 0.2, 3);
+  svgEl.style.transform = `scale(${scale})`;
+}
+
+function zoomOut() {
+  if (!svgEl) return;
+  scale = Math.max(scale - 0.2, 0.4);
+  svgEl.style.transform = `scale(${scale})`;
+}
+
+function resetView() {
+  if (!svgEl) return;
+  scale = 1;
+  svgEl.style.transform = 'scale(1)';
+}
+
+function downloadSVG() {
+  if (!svgEl) return;
+  const clone = svgEl.cloneNode(true);
+  clone.style.transform = '';
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  const data = new XMLSerializer().serializeToString(clone);
+  const blob = new Blob([data], { type: 'image/svg+xml' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bantay-dangcagan.svg';
+  a.click();
+}
+
+function downloadPNG() {
+  if (!svgEl) return;
+  const clone = svgEl.cloneNode(true);
+  clone.style.transform = '';
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+  const bbox = svgEl.getBoundingClientRect();
+  const w = bbox.width;
+  const h = bbox.height;
+
+  clone.setAttribute('width', w);
+  clone.setAttribute('height', h);
+
+  const data = new XMLSerializer().serializeToString(clone);
+  const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+
+  const img = new Image();
+  img.onload = () => {
+    const scaleFactor = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = w * scaleFactor;
+    canvas.height = h * scaleFactor;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.scale(scaleFactor, scaleFactor);
+    ctx.drawImage(img, 0, 0, w, h);
+    URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'bantay-dangcagan.png';
+    a.click();
+  };
+  img.src = url;
+}
+
+window.addEventListener('load', draw);
+</script>
+
+</body>
+</html>
